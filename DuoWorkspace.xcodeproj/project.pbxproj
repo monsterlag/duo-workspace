@@ -189,7 +189,6 @@
 		2FDFF57799391C51DC148A47 /* SessionDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailsView.swift; sourceTree = "<group>"; };
 		3004190CEAFF720295A644B0 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		301AEFBF5F63707C9960ACCD /* LocalZoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalZoom.swift; sourceTree = "<group>"; };
-		31D404159F51DCBBB6F602A7 /* touch */ = {isa = PBXFileReference; lastKnownFileType = folder; name = touch; path = .; sourceTree = SOURCE_ROOT; };
 		3450D80E5D3844EBDDD34AC5 /* KeyboardControlsOwner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardControlsOwner.swift; sourceTree = "<group>"; };
 		34651DF438511D0838F9635D /* HostLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostLibrary.swift; sourceTree = "<group>"; };
 		365B85DA6EA2A59FEB9229F1 /* KeyboardOwnershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardOwnershipTests.swift; sourceTree = "<group>"; };
@@ -258,6 +257,7 @@
 		A0994387DA621DFB89921A3A /* FlatWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlatWorkspace.swift; sourceTree = "<group>"; };
 		A148EDBA55E590F631A68A33 /* WorkspaceChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceChrome.swift; sourceTree = "<group>"; };
 		A3B0BA15E410A41280219C8C /* InterfaceAccessibilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceAccessibilityTests.swift; sourceTree = "<group>"; };
+		A5773601499B26D7AF02E33C /* duo-workspace */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "duo-workspace"; path = .; sourceTree = SOURCE_ROOT; };
 		A628C35CDA12EE5B48D20325 /* HandshakeDropServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandshakeDropServer.swift; sourceTree = "<group>"; };
 		A6A7B19381830F2EB0087ABE /* DuoWorkspace.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DuoWorkspace.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6DC4DEAE41A7EED5D134056 /* HostFormError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostFormError.swift; sourceTree = "<group>"; };
@@ -465,7 +465,7 @@
 		82A4540F9A317596F9EF619E /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				31D404159F51DCBBB6F602A7 /* touch */,
+				A5773601499B26D7AF02E33C /* duo-workspace */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -975,7 +975,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = local.duoworkspace.client;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -1031,7 +1031,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = local.duoworkspace.client;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};

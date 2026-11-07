@@ -19,7 +19,7 @@ struct HostEditorView: View {
         _name = State(initialValue: host?.name ?? "")
         _address = State(initialValue: host?.address ?? "")
         _port = State(initialValue: String(host?.port ?? 47991))
-        _mode = State(initialValue: host?.mode ?? .control)
+        _mode = State(initialValue: host?.mode ?? .extend)
     }
 
     var body: some View {
