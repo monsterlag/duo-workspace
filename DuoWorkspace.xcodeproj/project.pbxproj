@@ -59,6 +59,7 @@
 		59EAB2D8CA46492B8859C4FA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 38EBFF2C30BCB2F07E088CEA /* Assets.xcassets */; };
 		5F026CE02B24581F6A2CBB4C /* RemoteSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2ED19DB34E142481F66582 /* RemoteSessionView.swift */; };
 		600688BC243303F1C8B49A3F /* FoldWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875FABE8E0EC7A6E9CA9E50A /* FoldWorkspace.swift */; };
+		609A264C26BB38D837B83AF0 /* LocalZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 301AEFBF5F63707C9960ACCD /* LocalZoom.swift */; };
 		6314B97863A39E30E0DCEB2A /* SessionMicrophone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E6681B3413C69D8E8B03E6 /* SessionMicrophone.swift */; };
 		67F9F700A7AC1C434B62ACC5 /* MicrophoneClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58978312E16F57727BBE25C5 /* MicrophoneClientTests.swift */; };
 		6851E5D1705A9EA1F5A7E11C /* NativeTouchInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52BE35F12E0942E09787BCB /* NativeTouchInfo.swift */; };
@@ -124,6 +125,7 @@
 		DA00BBEDB6392BABAF04D86A /* DesktopSizingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F367834C43D572AAF808BC /* DesktopSizingOptions.swift */; };
 		DBF6CE4414E2A80835750DB6 /* RegionEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F825BF2E2338C4FB8CC45C /* RegionEnvironment.swift */; };
 		DD2A9CB1021E7F6666A9EDCC /* RemoteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700C83E32D079232351B3598 /* RemoteTextField.swift */; };
+		DD68F2F187FE89C4ED373C49 /* LocalZoomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944FB11CE29C1578954BDC9A /* LocalZoomTests.swift */; };
 		DE626D6B4100A3C0B51351A9 /* TrackpadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57F9E266457AAA35D3D69AF /* TrackpadView.swift */; };
 		DF2B190E0F0069CF7384428F /* DirectTouchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 618E510A84CB856D1DBA998E /* DirectTouchTests.swift */; };
 		E32D7F422A28D816B062F99A /* WorkspaceViewportContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BAF6BEA0B385A85DA2A32E3 /* WorkspaceViewportContext.swift */; };
@@ -186,6 +188,8 @@
 		2DAC244D09A85FB5C3E0A787 /* ClipboardSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardSection.swift; sourceTree = "<group>"; };
 		2FDFF57799391C51DC148A47 /* SessionDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailsView.swift; sourceTree = "<group>"; };
 		3004190CEAFF720295A644B0 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		301AEFBF5F63707C9960ACCD /* LocalZoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalZoom.swift; sourceTree = "<group>"; };
+		31D404159F51DCBBB6F602A7 /* touch */ = {isa = PBXFileReference; lastKnownFileType = folder; name = touch; path = .; sourceTree = SOURCE_ROOT; };
 		3450D80E5D3844EBDDD34AC5 /* KeyboardControlsOwner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardControlsOwner.swift; sourceTree = "<group>"; };
 		34651DF438511D0838F9635D /* HostLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostLibrary.swift; sourceTree = "<group>"; };
 		365B85DA6EA2A59FEB9229F1 /* KeyboardOwnershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardOwnershipTests.swift; sourceTree = "<group>"; };
@@ -245,6 +249,7 @@
 		875FABE8E0EC7A6E9CA9E50A /* FoldWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldWorkspace.swift; sourceTree = "<group>"; };
 		8AB0D8FE119A014FC75239BF /* ControlsEdgeHints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsEdgeHints.swift; sourceTree = "<group>"; };
 		91C367078CD17634F0E06AD0 /* SessionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionActions.swift; sourceTree = "<group>"; };
+		944FB11CE29C1578954BDC9A /* LocalZoomTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalZoomTests.swift; sourceTree = "<group>"; };
 		95BD079E7F2D9F358281947E /* MacShortcut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacShortcut.swift; sourceTree = "<group>"; };
 		9698683B191D402685D763EB /* PointerSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointerSurface.swift; sourceTree = "<group>"; };
 		97B91375D121C876525B1188 /* PointerMode+Presentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PointerMode+Presentation.swift"; sourceTree = "<group>"; };
@@ -296,7 +301,6 @@
 		E7041A646A3FA4F146A6D598 /* ControlsRevealGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsRevealGesture.swift; sourceTree = "<group>"; };
 		E7F825BF2E2338C4FB8CC45C /* RegionEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionEnvironment.swift; sourceTree = "<group>"; };
 		EF4578BCB171A4FFF58DD59F /* SessionNativeTouch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionNativeTouch.swift; sourceTree = "<group>"; };
-		F081F2C6F5B250BA29ED1E63 /* DuoWorkspace */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DuoWorkspace; path = .; sourceTree = SOURCE_ROOT; };
 		F4F367834C43D572AAF808BC /* DesktopSizingOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesktopSizingOptions.swift; sourceTree = "<group>"; };
 		F52BE35F12E0942E09787BCB /* NativeTouchInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTouchInfo.swift; sourceTree = "<group>"; };
 		F57F9E266457AAA35D3D69AF /* TrackpadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackpadView.swift; sourceTree = "<group>"; };
@@ -461,7 +465,7 @@
 		82A4540F9A317596F9EF619E /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				F081F2C6F5B250BA29ED1E63 /* DuoWorkspace */,
+				31D404159F51DCBBB6F602A7 /* touch */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -500,6 +504,7 @@
 				DD5C7A71B13D797BC1F9CBF9 /* HostLibraryTests.swift */,
 				A3B0BA15E410A41280219C8C /* InterfaceAccessibilityTests.swift */,
 				365B85DA6EA2A59FEB9229F1 /* KeyboardOwnershipTests.swift */,
+				944FB11CE29C1578954BDC9A /* LocalZoomTests.swift */,
 				58978312E16F57727BBE25C5 /* MicrophoneClientTests.swift */,
 				6E8B9779A99256B2193E9BD3 /* NativeTouchTests.swift */,
 				C7FBE7EB3A51C52B9F170DB4 /* RecoveryVideoFixture.swift */,
@@ -542,6 +547,7 @@
 				E5ABD0C89C691412F97A5067 /* DesktopTouchGeometry.swift */,
 				15EA58985D9CEADC110735BA /* DuoWorkspaceApp.swift */,
 				CE93BEAF859C90D28ABC38F2 /* Info.plist */,
+				301AEFBF5F63707C9960ACCD /* LocalZoom.swift */,
 				0113C6A0B6A8980271D0346F /* MicrophoneCapture.swift */,
 				605F1D9566E541D190958CCC /* PointerPadView.swift */,
 				9698683B191D402685D763EB /* PointerSurface.swift */,
@@ -817,6 +823,7 @@
 				F00A6CB92E7AD1E603861D60 /* KeyboardPresentation.swift in Sources */,
 				5305D874657D35E53197A595 /* KeyboardRegionController.swift in Sources */,
 				3D08B24AB2B8F6BC993AE2F9 /* LibraryEmptyView.swift in Sources */,
+				609A264C26BB38D837B83AF0 /* LocalZoom.swift in Sources */,
 				C4721D427819BBB1F4963DF3 /* MacCard.swift in Sources */,
 				B9FEA734A6009139A8AD5C14 /* MacFileSelectionNotice.swift in Sources */,
 				820A618F3BE49C525ECCA942 /* MacFunctionKey+Hardware.swift in Sources */,
@@ -915,6 +922,7 @@
 				954ADFDC767A0DF22D69486C /* HostLibraryTests.swift in Sources */,
 				22F872A19F632D63EE0E3201 /* InterfaceAccessibilityTests.swift in Sources */,
 				588CDF3FAACB8BC46E1EE608 /* KeyboardOwnershipTests.swift in Sources */,
+				DD68F2F187FE89C4ED373C49 /* LocalZoomTests.swift in Sources */,
 				67F9F700A7AC1C434B62ACC5 /* MicrophoneClientTests.swift in Sources */,
 				13BEB3A0AAAE01F064B1FA36 /* NativeTouchTests.swift in Sources */,
 				0C20152282691B934360C6C5 /* RecoveryVideoFixture.swift in Sources */,

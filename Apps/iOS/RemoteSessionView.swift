@@ -10,6 +10,7 @@ struct RemoteSessionView: View {
     @State private var chrome = WorkspaceChrome()
     @State private var requestedKeyboardControls = KeyboardControlsOwner.inputAccessory
     @State private var keyboardControlsOwner = KeyboardControlsOwner.inputAccessory
+    @State private var zoom = LocalZoomState()
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
     @Environment(\.accessibilitySwitchControlEnabled) private var switchControlEnabled
@@ -45,6 +46,7 @@ struct RemoteSessionView: View {
                 .ignoresSafeArea(.container)
             }
         }
+        .environment(\.localZoom, zoom)
         .overlay {
             ControlsEdgeHints(visible: !chrome.isVisible && model.state == .connected)
                 .ignoresSafeArea(.container, edges: .horizontal)
@@ -98,8 +100,14 @@ struct RemoteSessionView: View {
             if !presented { presentation.reset() }
         }
         .onChange(of: model.state) { _, state in
-            if state != .connected { keyboard = false; keyboardFocused = false; chrome.show() }
+            if state != .connected { keyboard = false; keyboardFocused = false; chrome.show(); zoom.value.reset() }
         }
+        // Native touch maps contacts without the zoom; a new picture or session starts at fit.
+        .onChange(of: model.workspacePointerMode) { _, mode in if mode == .nativeTouch { zoom.value.reset() } }
+        .onChange(of: model.active?.id) { zoom.value.reset() }
+        .onChange(of: model.display.mode) { zoom.value.reset() }
+        .onChange(of: model.frameAspect) { zoom.value.reset() }
+        .onChange(of: model.display.desktop) { zoom.value.reset() }
     }
 
     private func showSession() {
