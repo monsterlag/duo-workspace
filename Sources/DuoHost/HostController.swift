@@ -57,6 +57,7 @@ public final class HostController {
     @ObservationIgnored private var recoveryFailure: CaptureFailure?
     @ObservationIgnored private var failedCaptureGeneration: UInt64?
     @ObservationIgnored private var supportsCaptureRecovery = false
+    @ObservationIgnored private var acknowledgesFrames = false
     @ObservationIgnored private let audio = HostAudioStream()
     @ObservationIgnored private var microphoneNegotiated = false
     #if DEBUG
@@ -160,7 +161,7 @@ public final class HostController {
         invalidatePipeline()
         captureRecoveryTask?.cancel(); captureRecoveryTask = nil
         recoveryFailure = nil; failedCaptureGeneration = nil
-        activeResize = nil; supportsCaptureRecovery = false
+        activeResize = nil; supportsCaptureRecovery = false; acknowledgesFrames = false
         mediaConfiguration = nil; audio.stop()
         #if DEBUG
         interruptNextResize = false
@@ -327,6 +328,10 @@ public final class HostController {
             }
             let reply = HostClipboard(pasteboard: .general).handle(request, allowed: activeAllowsControl)
             session.channel.send(.clipboardResponse, object: reply)
+        case .videoFrameAck:
+            guard authorized(session), channel === session.channel, acknowledgesFrames,
+                  let ack = try? TimedVideoFrame.acknowledged(packet.payload) else { closeConnection(session.id); return }
+            pipeline?.acknowledge(ack.id, at: packet.receivedAt, held: ack.held)
         case .ping:
             guard packet.payload.count <= 64 else { closeConnection(session.id); return }
             session.channel.send(.pong, payload: packet.payload)
@@ -376,6 +381,7 @@ public final class HostController {
             approved.supportsNativeTouch = NativeTouchController.isSupported
             approved.supportsFunctionModifier = true
             approved.supportsMicrophone = true
+            approved.supportsFrameAcks = true
             session.channel.send(.authorization, object: approved)
         } else {
             session.channel.send(.authorization, object: result)
@@ -434,6 +440,7 @@ public final class HostController {
         let generation = pipelineGeneration
         streamMode = hello.mode; streamQuality = hello.quality ?? .balanced
         supportsCaptureRecovery = hello.supportsCaptureRecovery == true
+        acknowledgesFrames = hello.supportsFrameAcks == true && hello.supportsMediaTiming == true
         audio.begin(transport: transport, permitsControl: activeAllowsControl, usesMediaTiming: hello.supportsMediaTiming == true)
         do {
             var displayID = CGMainDisplayID()
@@ -498,7 +505,7 @@ public final class HostController {
             throw CancellationError()
         }
         let configuration = HostMediaPipeline.Configuration(displayID: displayID, width: width, height: height,
-            desktop: desktop, quality: streamQuality)
+            desktop: desktop, quality: streamQuality, acknowledgesFrames: acknowledgesFrames)
         let next = HostMediaPipeline(configuration: configuration, transport: transport, audio: audio)
         mediaConfiguration = configuration; pipeline = next
         next.onFailure = { [weak self, weak transport] failure in

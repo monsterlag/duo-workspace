@@ -65,6 +65,10 @@ final class SessionModel {
     @ObservationIgnored private var suspended = false
     @ObservationIgnored private var restoringCapture = false
     @ObservationIgnored private var recoveryFrameReceived = false
+    @ObservationIgnored private var supportsFrameAcks = false
+    @ObservationIgnored private var pendingAck: (id: UInt32, enqueuedAt: TimeInterval)?
+    @ObservationIgnored private var lastAckSent = -Double.infinity
+    @ObservationIgnored private var ackTask: Task<Void, Never>?
 
     init(defaults: UserDefaults = .standard, credentials: any ClientCredentials = KeychainClientCredentials()) {
         self.credentials = credentials
@@ -92,6 +96,8 @@ final class SessionModel {
         }
         display.sendHello = { [weak self] hello in
             guard let self, self.sessionAuthorized else { return }
+            var hello = hello
+            if self.supportsFrameAcks { hello.supportsFrameAcks = true }
             self.channel?.send(.hello, object: hello)
         }
         display.sendResize = { [weak self] request in
@@ -201,6 +207,7 @@ final class SessionModel {
                     supportsFileTransfer = result.supportsFileTransfer == true
                     nativeTouch.supported = result.supportsNativeTouch == true
                     input.supportsFunctionModifier = result.supportsFunctionModifier == true
+                    supportsFrameAcks = result.supportsFrameAcks == true
                     microphone.sendControl = { [weak self] request in
                         guard let self, self.sessionAuthorized, let channel = self.channel else { return false }
                         channel.send(.microphoneControl, object: request); return true
@@ -298,14 +305,18 @@ final class SessionModel {
                 renderer.clear()
                 frameAspect = Double(config.width) / Double(config.height)
                 streamWidth = config.width; streamHeight = config.height
-            case .videoFrame, .timedVideoFrame:
-                guard sessionAuthorized else { throw IdentityError.invalidIdentity }
+            case .videoFrame, .timedVideoFrame, .identifiedVideoFrame:
+                guard sessionAuthorized, packet.kind != .identifiedVideoFrame || supportsFrameAcks else {
+                    throw IdentityError.invalidIdentity
+                }
                 var data = packet.payload
-                if packet.kind == .timedVideoFrame {
-                    let frame = try TimedVideoFrame(encoded: data)
-                    audio.noteVideoTime(frame.time); data = frame.data
+                var acknowledgement: UInt32?
+                if packet.kind != .videoFrame {
+                    let frame = try TimedVideoFrame(encoded: data, identified: packet.kind == .identifiedVideoFrame)
+                    audio.noteVideoTime(frame.time); data = frame.data; acknowledgement = frame.id
                 }
                 renderer.enqueue(try factory.sample(data))
+                if let acknowledgement { acknowledge(acknowledgement) }
                 receivedFrames += 1
                 if restoringCapture {
                     hasVideo = true
@@ -328,6 +339,30 @@ final class SessionModel {
         } catch let error as IdentityError {
             fail(error.localizedDescription, retry: false)
         } catch { fail("Couldn’t read a message from your Mac. Reconnect to try again.", retry: false) }
+    }
+
+    /// The host paces frames and bitrate on acks. They are cumulative, so at most one
+    /// is sent per 33 ms carrying the newest enqueued frame and how long it was held.
+    private func acknowledge(_ id: UInt32) {
+        let now = ProcessInfo.processInfo.systemUptime
+        pendingAck = (id, now)
+        guard ackTask == nil else { return }
+        let wait = lastAckSent + 0.033 - now
+        guard wait > 0 else { flushAck(); return }
+        ackTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(wait))
+            guard let self, !Task.isCancelled else { return }
+            self.ackTask = nil; self.flushAck()
+        }
+    }
+
+    private func flushAck() {
+        guard let ack = pendingAck, sessionAuthorized, let channel else { return }
+        pendingAck = nil
+        let now = ProcessInfo.processInfo.systemUptime
+        lastAckSent = now
+        let held = Int(((now - ack.enqueuedAt) * 1000).rounded())
+        channel.send(.videoFrameAck, payload: TimedVideoFrame.acknowledgement(ack.id, heldMilliseconds: held))
     }
 
     private func startHealthChecks() {
@@ -432,6 +467,8 @@ final class SessionModel {
         input.releaseAll()
         nativeTouch.disconnect()
         input.supportsFunctionModifier = false
+        supportsFrameAcks = false
+        ackTask?.cancel(); ackTask = nil; pendingAck = nil; lastAckSent = -.infinity
         channel?.finish()
         channel = nil
         health = nil

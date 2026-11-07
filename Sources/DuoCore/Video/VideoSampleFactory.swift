@@ -28,7 +28,7 @@ public final class VideoSampleFactory {
         guard status==noErr,let block else{throw NSError(domain:"DuoVideo",code:Int(status))}
         status=data.withUnsafeBytes{CMBlockBufferReplaceDataBytes(with:$0.baseAddress!,blockBuffer:block,offsetIntoDestination:0,dataLength:data.count)}
         guard status==noErr else{throw NSError(domain:"DuoVideo",code:Int(status))}
-        var timing=CMSampleTimingInfo(duration:CMTime(value:1,timescale:30),presentationTimeStamp:.zero,decodeTimeStamp:.invalid)
+        var timing=CMSampleTimingInfo(duration:CMTime(value:1,timescale:60),presentationTimeStamp:.zero,decodeTimeStamp:.invalid)
         var size=data.count,sample:CMSampleBuffer?
         status=CMSampleBufferCreateReady(allocator:nil,dataBuffer:block,formatDescription:format,sampleCount:1,sampleTimingEntryCount:1,sampleTimingArray:&timing,sampleSizeEntryCount:1,sampleSizeArray:&size,sampleBufferOut:&sample)
         guard status==noErr,let sample else{throw NSError(domain:"DuoVideo",code:Int(status))}

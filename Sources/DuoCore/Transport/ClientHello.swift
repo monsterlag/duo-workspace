@@ -7,6 +7,8 @@ public struct ClientHello: Codable, Sendable {
     public var desktop: DesktopSize?
     public var supportsCaptureRecovery: Bool?
     public var supportsMediaTiming: Bool?
+    /// Echo each `identifiedVideoFrame` with a `videoFrameAck`; only sent when the host offers it.
+    public var supportsFrameAcks: Bool?
     public init(mode: WorkspaceMode, width: Int, height: Int, quality: StreamQuality? = nil, desktop: DesktopSize? = nil,
                 supportsCaptureRecovery: Bool? = nil) {
         self.mode=mode; self.width=width; self.height=height; self.quality=quality; self.desktop=desktop

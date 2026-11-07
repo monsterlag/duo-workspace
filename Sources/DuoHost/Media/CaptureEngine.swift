@@ -20,7 +20,7 @@ public final class CaptureEngine:NSObject,SCStreamOutput,SCStreamDelegate,@unche
     @MainActor private var stopped = false
     private let queue=DispatchQueue(label:"DuoWorkspace.Capture")
     @MainActor
-    public func start(displayID:CGDirectDisplayID,width:Int=1600,height:Int=1000,framesPerSecond:Int=30,expectedLogicalSize:CGSize?=nil,audioEnabled:Bool=false) async throws {
+    public func start(displayID:CGDirectDisplayID,width:Int=1600,height:Int=1000,framesPerSecond:Int=60,expectedLogicalSize:CGSize?=nil,audioEnabled:Bool=false) async throws {
         guard CGPreflightScreenCaptureAccess() else {throw NSError(domain:"DuoCapture",code:1,userInfo:[NSLocalizedDescriptionKey:"Screen Recording permission is required"])}
         try await runStartup { [self] in
             try await prepareStream(displayID: displayID, width: width, height: height,
@@ -59,7 +59,7 @@ public final class CaptureEngine:NSObject,SCStreamOutput,SCStreamDelegate,@unche
         let filter=SCContentFilter(display:display,excludingWindows:[])
         let config=SCStreamConfiguration()
         config.width=width;config.height=height;config.pixelFormat=kCVPixelFormatType_32BGRA
-        config.minimumFrameInterval=CMTime(value:1,timescale:CMTimeScale(min(60,max(15,framesPerSecond))));config.queueDepth=3
+        config.minimumFrameInterval=CMTime(value:1,timescale:CMTimeScale(min(60,max(15,framesPerSecond))));config.queueDepth=5
         config.showsCursor=true;config.capturesAudio=audioEnabled
         config.sampleRate=Int(AudioStreamFormat.sampleRate);config.channelCount=Int(AudioStreamFormat.channelCount);config.excludesCurrentProcessAudio=true
         configuration = config
