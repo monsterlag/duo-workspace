@@ -20,3 +20,11 @@ Full suite green (51 driver, 52 package, 100 client tests). Live: pairing, ~50�
 - Hardware H.264 encoder rejects `MaxFrameDelayCount` (-12900); consider `kVTVideoEncoderSpecification_EnableLowLatencyRateControl`.
 - Acks that arrive while the host awaits a slow input handler (native-touch lift, up to 0.5 s) are timestamped late.
 - No real-device install yet (needs the owner's developer team: TestFlight or Xcode).
+
+## TestFlight (2026-11-07)
+
+- App Store Connect app **6832027461**, listing name "Duo Desk - duodesk" ("Duo Desk" was taken; home-screen name is Duo Desk). Bundle `com.macmax.duodesk`, team 6W6FT9SXBU, profile "Duo Desk App Store" (Apple Distribution cert 78CQJ8C2D4).
+- Internal group **Owner Testing** `ee0b4478-4d21-485c-91d7-7f6bb5ca4762` (owner's developer account). No external group, no beta review, no public release.
+- Build **1** (1.0): VALID, IN_BETA_TESTING, in Owner Testing, What to Test = `Scripts/testflight/what-to-test.txt`. Built with released Xcode 27.2 (beta SDK builds can be rejected).
+- Next build: `Scripts/testflight/release.sh 2`, then `asc builds add-groups --app 6832027461 --latest --group ee0b4478-…` and `asc builds test-notes create …`. Use a number above the latest in App Store Connect.
+- asc gotcha: in zsh never name a shell variable `GID` (reserved integer).
