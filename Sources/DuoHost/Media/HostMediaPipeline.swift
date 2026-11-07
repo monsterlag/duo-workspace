@@ -3,6 +3,7 @@ import CoreGraphics
 import CoreMedia
 import CoreVideo
 import DuoCore
+import os
 
 @MainActor
 final class HostMediaPipeline {
@@ -38,6 +39,25 @@ final class HostMediaPipeline {
     private var lastTime = CMTime.invalid
     private let lifetime = MediaDeliveryLifetime()
     private var retired: Bool { !lifetime.isActive }
+    private static let statsLog = Logger(subsystem: "DuoWorkspace", category: "Stream")
+    private var stats = (start: 0.0, frames: 0, bytes: 0, captured: 0)
+
+    /// Once a second: frames and Mbps actually sent, captures offered, and the controller's view.
+    private func recordStats(frameBytes: Int?, now: TimeInterval) {
+        if stats.start == 0 { stats.start = now }
+        if let frameBytes { stats.frames += 1; stats.bytes += frameBytes } else { stats.captured += 1 }
+        let elapsed = now - stats.start
+        guard elapsed >= 1 else { return }
+        let rtt = rate.minimumRoundTrip.map { String(format: "%.0f", $0) } ?? "-"
+        Self.statsLog.info("""
+            sent \(Double(self.stats.frames) / elapsed, format: .fixed(precision: 1)) fps \
+            \(Double(self.stats.bytes) * 8 / elapsed / 1e6, format: .fixed(precision: 2)) Mbps, \
+            captured \(Double(self.stats.captured) / elapsed, format: .fixed(precision: 1)) fps, \
+            target \(self.rate.targetBitRate / 1000) kbps, rtt \(rtt, privacy: .public) ms, \
+            queue \(self.rate.queueMilliseconds, format: .fixed(precision: 0)) ms
+            """)
+        stats = (now, 0, 0, 0)
+    }
 
     init(configuration: Configuration, transport: SecureChannel, audio: HostAudioStream) {
         self.configuration = configuration; self.transport = transport; self.audio = audio
@@ -114,6 +134,7 @@ final class HostMediaPipeline {
                 self.nextFrameID &+= 1
                 let payload = TimedVideoFrame(id: self.nextFrameID, time: frame.time, data: frame.data).encoded()
                 self.rate.sent(id: self.nextFrameID, bytes: payload.count, at: ProcessInfo.processInfo.systemUptime)
+                self.recordStats(frameBytes: payload.count, now: ProcessInfo.processInfo.systemUptime)
                 self.unsent += 1
                 self.transport.send(.identifiedVideoFrame, payload: payload) { [weak self] in Task { @MainActor in
                     guard let self, !self.retired else { return }
@@ -146,6 +167,7 @@ final class HostMediaPipeline {
         } }
         capture.onFrame = { [weak self] buffer, time in Task { @MainActor in
             guard let self, !self.retired else { return }
+            self.recordStats(frameBytes: nil, now: ProcessInfo.processInfo.systemUptime)
             self.pending = Picture(buffer: buffer, time: time); self.pump()
         } }
         capture.onError = { [weak self] failure in Task { @MainActor in
