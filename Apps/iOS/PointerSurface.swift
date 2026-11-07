@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit.UIGestureRecognizerSubclass
 import DuoCore
 
 struct PointerSurface: UIViewRepresentable {
@@ -11,6 +12,8 @@ struct PointerSurface: UIViewRepresentable {
     var doubleTapAction: TouchDoubleTapAction = .doubleClick
     var revealControls: (() -> Void)?
     var accessibleName: LocalizedStringResource = "Remote trackpad"
+    /// Pinching zooms this local view of the Mac picture; nil keeps two fingers a scroll.
+    var zoom: LocalZoomState?
     @Environment(\.isEnabled) private var environmentEnabled
 
     func makeCoordinator() -> Coordinator { Coordinator(input: input) }
@@ -27,13 +30,15 @@ struct PointerSurface: UIViewRepresentable {
 
     func updateUIView(_ view: PointerPadView, context: Context) {
         context.coordinator.input = input
+        context.coordinator.zoom = zoom
         configure(view, coordinator: context.coordinator)
     }
 
     private func configure(_ view: PointerPadView, coordinator: Coordinator) {
         let active = enabled && environmentEnabled && (mode != .nativeTouch || nativeTouch?.isReady == true)
         coordinator.configure(view: view, enabled: active, mode: mode, aspect: frameAspect,
-                              doubleTapAction: doubleTapAction, revealControls: revealControls)
+                              doubleTapAction: doubleTapAction, revealControls: revealControls,
+                              zoomed: zoom?.value.isZoomed == true)
         view.configureNativeTouch(active && mode == .nativeTouch ? nativeTouch : nil,
                                   aspect: frameAspect, reservesEdges: revealControls != nil,
                                   cancellationID: nativeTouchCancellationID)
@@ -64,10 +69,13 @@ struct PointerSurface: UIViewRepresentable {
         private(set) var frameAspect: Double = 1
         private(set) var doubleTapAction: TouchDoubleTapAction = .doubleClick
         var revealControls: (() -> Void)?
+        var zoom: LocalZoomState?
         private var longDragging = false
         private var panScrolled = false
         private var panStartedOnImage = false
-        private var scrollStartedOnImage = false
+        private var twoFinger: TwoFingerGesture?
+        private var scrollStart = CGPoint.zero
+        private var rebasePinch = false
         private var lastTapTime: TimeInterval = 0
         private var lastTapPoint = CGPoint.zero
         private var lastTapPosition: CGPoint?
@@ -75,6 +83,7 @@ struct PointerSurface: UIViewRepresentable {
         private weak var revealGesture: UIPanGestureRecognizer?
         private weak var pointerPanGesture: UIPanGestureRecognizer?
         private weak var scrollGesture: UIPanGestureRecognizer?
+        private weak var fitGesture: UITapGestureRecognizer?
         private var revealStart: CGPoint?
         private var panOrigin: CGPoint?
         private var scrollOrigin: CGPoint?
@@ -85,7 +94,7 @@ struct PointerSurface: UIViewRepresentable {
             let pan = UIPanGestureRecognizer(target: self, action: #selector(pan(_:)))
             pan.maximumNumberOfTouches = 1
             pointerPanGesture = pan
-            let scroll = UIPanGestureRecognizer(target: self, action: #selector(scroll(_:)))
+            let scroll = TwoFingerPanGestureRecognizer(target: self, action: #selector(scroll(_:)))
             scroll.minimumNumberOfTouches = 2; scroll.maximumNumberOfTouches = 2
             scrollGesture = scroll
             let tap = UITapGestureRecognizer(target: self, action: #selector(tap(_:)))
@@ -94,12 +103,16 @@ struct PointerSurface: UIViewRepresentable {
             let doubleRight = UITapGestureRecognizer(target: self, action: #selector(doubleRightTap(_:)))
             doubleRight.numberOfTapsRequired = 2
             doubleRightGesture = doubleRight
+            let fit = UITapGestureRecognizer(target: self, action: #selector(fitZoom(_:)))
+            fit.numberOfTouchesRequired = 2; fit.numberOfTapsRequired = 2
+            fitGesture = fit
             let hold = UILongPressGestureRecognizer(target: self, action: #selector(hold(_:)))
             hold.minimumPressDuration = 0.4
-            let inputGestures = [pan, scroll, tap, right, doubleRight, hold]
+            let inputGestures = [pan, scroll, tap, right, doubleRight, fit, hold]
             for gesture in inputGestures { gesture.delegate = self; view.addGestureRecognizer(gesture) }
             tap.require(toFail: right)
             tap.require(toFail: doubleRight)
+            right.require(toFail: fit)
             let reveal = UIPanGestureRecognizer(target: self, action: #selector(reveal(_:)))
             reveal.maximumNumberOfTouches = 1
             reveal.delegate = self
@@ -109,7 +122,7 @@ struct PointerSurface: UIViewRepresentable {
         }
 
         func configure(view: UIView, enabled: Bool, mode: PointerMode, aspect: Double,
-                       doubleTapAction: TouchDoubleTapAction, revealControls: (() -> Void)?) {
+                       doubleTapAction: TouchDoubleTapAction, revealControls: (() -> Void)?, zoomed: Bool = false) {
             if self.mode != mode || self.doubleTapAction != doubleTapAction || (isEnabled && !enabled)
                 || (mode != .trackpad && frameAspect != aspect) {
                 for gesture in view.gestureRecognizers ?? [] { gesture.isEnabled = false }
@@ -117,9 +130,12 @@ struct PointerSurface: UIViewRepresentable {
             }
             self.isEnabled = enabled; self.mode = mode; self.frameAspect = aspect
             self.doubleTapAction = doubleTapAction; self.revealControls = revealControls
+            (scrollGesture as? TwoFingerPanGestureRecognizer)?.beginsOnSpread = zoom != nil && mode != .nativeTouch
             for gesture in view.gestureRecognizers ?? [] {
                 if gesture === revealGesture { gesture.isEnabled = revealControls != nil }
                 else if gesture === doubleRightGesture { gesture.isEnabled = enabled && mode == .direct && doubleTapAction == .rightClick }
+                // Only while zoomed, so a two-finger right-click doesn't wait for a second tap.
+                else if gesture === fitGesture { gesture.isEnabled = enabled && mode != .nativeTouch && zoomed }
                 else { gesture.isEnabled = enabled && mode != .nativeTouch }
             }
         }
@@ -127,7 +143,9 @@ struct PointerSurface: UIViewRepresentable {
         func cancelInteraction() {
             lastTapTime = 0; lastTapPosition = nil
             revealStart = nil; panOrigin = nil; scrollOrigin = nil
-            longDragging = false; panScrolled = false; panStartedOnImage = false; scrollStartedOnImage = false
+            longDragging = false; panScrolled = false; panStartedOnImage = false
+            if twoFinger?.kind == .pinch { zoom?.value.endPinch() }
+            twoFinger = nil
             input.releaseHeldInput()
         }
 
@@ -145,10 +163,10 @@ struct PointerSurface: UIViewRepresentable {
                 }
             }
             if [.began, .changed, .ended].contains(gesture.state), panStartedOnImage {
-                if input.isScrolling { panScrolled = true; input.scroll(translation) }
+                if input.isScrolling { panScrolled = true; input.scroll(zoomed(translation)) }
                 else if mode == .direct {
                     if let target = position(point, in: view.bounds, clamped: true) { input.move(to: target) }
-                } else { input.move(translation, in: view.bounds.size) }
+                } else { input.move(zoomed(translation), in: view.bounds.size) }
             }
             gesture.setTranslation(.zero, in: view)
             if gesture.state == .ended {
@@ -160,25 +178,64 @@ struct PointerSurface: UIViewRepresentable {
 
         @objc func scroll(_ gesture: UIPanGestureRecognizer) {
             guard isEnabled, let view = gesture.view else { return }
-            var delta = gesture.translation(in: view)
+            let point = gesture.location(in: view)
+            let startTouches = (gesture as? TwoFingerPanGestureRecognizer)?.startTouches
+            // Without per-finger positions only the centre is known; it never reads as a pinch.
+            let touches = gesture.numberOfTouches >= 2
+                ? (gesture.location(ofTouch: 0, in: view), gesture.location(ofTouch: 1, in: view))
+                : startTouches == nil ? (point, point) : nil
             if gesture.state == .began {
                 lastTapTime = 0
-                scrollStartedOnImage = mode == .trackpad
-                let point = gesture.location(in: view)
-                let start = scrollOrigin ?? CGPoint(x: point.x - delta.x, y: point.y - delta.y)
-                delta = CGPoint(x: point.x - start.x, y: point.y - start.y)
-                if mode == .direct, let target = position(start, in: view.bounds) {
-                    input.move(to: target)
-                    scrollStartedOnImage = true
-                }
+                let delta = gesture.translation(in: view)
+                scrollStart = scrollOrigin ?? CGPoint(x: point.x - delta.x, y: point.y - delta.y)
+                let first = startTouches ?? (scrollStart, scrollStart)
+                twoFinger = TwoFingerGesture(first.0, first.1, allowsPinch: zoom != nil && mode != .nativeTouch)
             }
-            if [.began, .changed, .ended].contains(gesture.state), scrollStartedOnImage {
+            if [.began, .changed, .ended].contains(gesture.state), var twoFinger {
+                let previous = twoFinger.kind
+                var dropped = false
+                switch touches.map({ twoFinger.update($0.0, $0.1) }) ?? previous {
+                case .undecided: break
+                case .scroll:
+                    // The first scroll event catches up from where the fingers started.
+                    if previous != .scroll || gesture.state == .began {
+                        // Pinches may start in the margins; in Touch a scroll there has no Mac target.
+                        if mode == .direct {
+                            guard let target = position(scrollStart, in: view.bounds) else { dropped = true; break }
+                            input.move(to: target)
+                        }
+                        input.scroll(zoomed(CGPoint(x: point.x - scrollStart.x, y: point.y - scrollStart.y)))
+                    } else { input.scroll(zoomed(gesture.translation(in: view))) }
+                case .pinch:
+                    // A lifted finger leaves the pinch until two touch again; restart from there so scale doesn't jump.
+                    guard let touches else { rebasePinch = true; break }
+                    let centre = TwoFingerGesture.centre(touches.0, touches.1)
+                    let spread = TwoFingerGesture.distance(touches.0, touches.1)
+                    if previous != .pinch || rebasePinch {
+                        zoom?.value.beginPinch(centre: centre, spread: spread); rebasePinch = false
+                    }
+                    zoom?.value.pinch(centre: centre, spread: spread, in: view.bounds, aspect: frameAspect)
+                }
+                self.twoFinger = dropped ? nil : twoFinger
                 gesture.setTranslation(.zero, in: view)
-                input.scroll(delta)
             }
             if [.ended, .cancelled, .failed].contains(gesture.state) {
-                input.finishScroll(); scrollStartedOnImage = false; scrollOrigin = nil
+                if twoFinger?.kind == .scroll { input.finishScroll() }
+                if twoFinger?.kind == .pinch { zoom?.value.endPinch() }
+                twoFinger = nil; scrollOrigin = nil; rebasePinch = false
             }
+        }
+
+        /// Scroll distance on the zoomed picture, so content follows the fingers.
+        private func zoomed(_ delta: CGPoint) -> CGPoint {
+            let scale = zoom?.value.scale ?? 1
+            return CGPoint(x: delta.x / scale, y: delta.y / scale)
+        }
+
+        @objc func fitZoom(_ gesture: UITapGestureRecognizer) {
+            guard gesture.state == .ended else { return }
+            lastTapTime = 0
+            zoom?.value.reset()
         }
 
         @objc func tap(_ gesture: UITapGestureRecognizer) {
@@ -248,8 +305,9 @@ struct PointerSurface: UIViewRepresentable {
             if [.ended, .cancelled, .failed].contains(gesture.state) { revealStart = nil }
         }
 
+        /// Maps through the local zoom, so a touch lands on what is drawn under it.
         private func position(_ point: CGPoint, in bounds: CGRect, clamped: Bool = false) -> CGPoint? {
-            DesktopTouchGeometry.normalized(point, in: bounds, aspect: frameAspect, clamped: clamped)
+            (zoom?.value ?? LocalZoom()).normalized(point, in: bounds, aspect: frameAspect, clamped: clamped)
         }
 
         var accessibilityActions: [UIAccessibilityCustomAction] {
@@ -314,7 +372,8 @@ struct PointerSurface: UIViewRepresentable {
             guard isEnabled, let view = gesture.view else { return false }
             let point = gesture.location(in: view), delta = gesture.translation(in: view)
             let start = CGPoint(x: point.x - delta.x, y: point.y - delta.y)
-            if scrolling { scrollOrigin = start } else { panOrigin = start }
+            if scrolling { scrollOrigin = start; return true }
+            panOrigin = start
             return mode == .trackpad || position(start, in: view.bounds) != nil
         }
         func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
@@ -326,5 +385,30 @@ struct PointerSurface: UIViewRepresentable {
             return (gesture is UILongPressGestureRecognizer && other is UIPanGestureRecognizer)
                 || (other is UILongPressGestureRecognizer && gesture is UIPanGestureRecognizer)
         }
+    }
+}
+
+/// A two-finger pan that also begins when the fingers only spread or close, which
+/// leaves their centre still and never recognises a plain pan.
+final class TwoFingerPanGestureRecognizer: UIPanGestureRecognizer {
+    private(set) var startTouches: (CGPoint, CGPoint)?
+    /// Only where a spread can become a pinch; elsewhere it would start a zero-length scroll.
+    var beginsOnSpread = false
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesBegan(touches, with: event)
+        if numberOfTouches == 2 { startTouches = (location(ofTouch: 0, in: view), location(ofTouch: 1, in: view)) }
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesMoved(touches, with: event)
+        guard beginsOnSpread, state == .possible, numberOfTouches == 2, let startTouches else { return }
+        let spread = TwoFingerGesture.distance(location(ofTouch: 0, in: view), location(ofTouch: 1, in: view))
+        if abs(spread - TwoFingerGesture.distance(startTouches.0, startTouches.1)) > TwoFingerGesture.slop { state = .began }
+    }
+
+    override func reset() {
+        super.reset()
+        startTouches = nil
     }
 }

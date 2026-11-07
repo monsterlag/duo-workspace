@@ -72,7 +72,7 @@ struct DirectTouchTests {
             gesture.reportedLocation = CGPoint(x: 100, y: 200)
             gesture.reportedTranslation = CGPoint(x: 0, y: 180)
             #expect(!control.preparePan(gesture))
-            #expect(!control.preparePan(gesture, scrolling: true))
+            #expect(control.preparePan(gesture, scrolling: true))
         }
     }
     @Test func revealUsesLocalEdgesAndRequiresAnInwardHorizontalSwipe() {

@@ -16,7 +16,7 @@ Choose the pointer mode in Session:
 | Touch | Tap the Mac image to click there. Slide to point and hold to drag. |
 | Native touch | Send up to five finger contacts to macOS. See the [native-touch guide](NativeTouch.md) for setup and behavior. |
 
-In Trackpad and Touch, use two fingers to scroll. Drag holds the mouse button until you choose Drop; Scroll lets you scroll with one finger. The More menu has Right-click and Double-click actions at the pointer's position.
+In Trackpad and Touch, use two fingers to scroll. Pinch to zoom the Mac picture on your iPhone, and move the pinch to pan; nothing is sent to the Mac. Double-tap with two fingers to return to fit. Drag holds the mouse button until you choose Drop; Scroll lets you scroll with one finger. The More menu has Right-click and Double-click actions at the pointer's position.
 
 Touch ignores taps in black margins. Double-tap right-clicks by default; change Settings → Input → Double-tap to Double-click if you prefer. A two-finger tap also right-clicks. The lower tabletop trackpad stays a trackpad in all modes.
 
