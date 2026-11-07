@@ -158,7 +158,10 @@ public final class SecureChannel: @unchecked Sendable {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 64 * 1024) { [weak self] data, _, done, error in
             guard let self, !self.closed, !self.finishing else { return }
             do {
-                let packets = try data.map { try self.decoder.append($0) } ?? []
+                let arrival = ProcessInfo.processInfo.systemUptime
+                let packets = try (data.map { try self.decoder.append($0) } ?? []).map { packet in
+                    var packet = packet; packet.receivedAt = arrival; return packet
+                }
                 for _ in packets {
                     guard self.receiveBudget.consume(now: ProcessInfo.processInfo.systemUptime) else {
                         self.fail("Incoming packet rate exceeded"); return

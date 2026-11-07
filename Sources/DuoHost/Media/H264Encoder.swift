@@ -3,6 +3,7 @@ import VideoToolbox
 import CoreMedia
 import CoreVideo
 import DuoCore
+import os
 
 public final class H264Encoder {
     public var onOutput: ((EncodedVideoFrame) -> Void)?
@@ -11,7 +12,12 @@ public final class H264Encoder {
     private var sentSPS:Data?
     private let width:Int,height:Int
     private let frameDuration: CMTime
-    public init(width:Int,height:Int,bitRate:Int = 6_000_000,framesPerSecond:Int = 30) throws {
+    private let keyFrameLock = NSLock()
+    private var forceKeyFrame = false
+    private var rejectedProperties = Set<String>()
+    private static let log = Logger(subsystem: "DuoWorkspace", category: "Encoder")
+    /// `keyFrameInterval` nil means keyframes only on demand (the first frame and `requestKeyFrame()`).
+    public init(width:Int,height:Int,bitRate:Int = 6_000_000,framesPerSecond:Int = 60,keyFrameInterval:TimeInterval? = 2) throws {
         guard VideoRasterLimits.contains(width: width, height: height) else { throw WireError.oversized }
         self.width=width;self.height=height
         frameDuration = CMTime(value: 1, timescale: CMTimeScale(max(1, framesPerSecond)))
@@ -24,17 +30,39 @@ public final class H264Encoder {
                 encoder.output(sample)
             },refcon:Unmanaged.passUnretained(self).toOpaque(),compressionSessionOut:&session)
         guard status==noErr,let session else{throw NSError(domain:"DuoEncoder",code:Int(status))}
-        VTSessionSetProperty(session,key:kVTCompressionPropertyKey_RealTime,value:kCFBooleanTrue)
-        VTSessionSetProperty(session,key:kVTCompressionPropertyKey_AllowFrameReordering,value:kCFBooleanFalse)
-        VTSessionSetProperty(session,key:kVTCompressionPropertyKey_ProfileLevel,value:kVTProfileLevel_H264_Main_AutoLevel)
-        VTSessionSetProperty(session,key:kVTCompressionPropertyKey_AverageBitRate,value:min(20_000_000,max(1_000_000,bitRate)) as CFNumber)
-        VTSessionSetProperty(session,key:kVTCompressionPropertyKey_ExpectedFrameRate,value:framesPerSecond as CFNumber)
-        VTSessionSetProperty(session,key:kVTCompressionPropertyKey_MaxKeyFrameInterval,value:framesPerSecond as CFNumber)
+        set(kVTCompressionPropertyKey_RealTime,kCFBooleanTrue)
+        set(kVTCompressionPropertyKey_AllowFrameReordering,kCFBooleanFalse)
+        set(kVTCompressionPropertyKey_ProfileLevel,kVTProfileLevel_H264_Main_AutoLevel)
+        set(kVTCompressionPropertyKey_ExpectedFrameRate,framesPerSecond as CFNumber)
+        // Low latency: no reordering or frame delay.
+        set(kVTCompressionPropertyKey_MaxFrameDelayCount,0 as CFNumber)
+        set(kVTCompressionPropertyKey_PrioritizeEncodingSpeedOverQuality,kCFBooleanTrue)
+        // Periodic keyframes spike delay on a paced link; a reliable transport only needs them on demand.
+        let interval = keyFrameInterval ?? 3600
+        set(kVTCompressionPropertyKey_MaxKeyFrameInterval,max(1, Int(interval * Double(framesPerSecond))) as CFNumber)
+        set(kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration,interval as CFNumber)
+        setBitRate(bitRate)
         VTCompressionSessionPrepareToEncodeFrames(session)
     }
+    /// Changes the target bitrate on the live session. Bursts are capped at 1.5x over
+    /// one second and 1.5x of the 100 ms budget, so no single frame is far above it.
+    public func setBitRate(_ bitRate:Int){
+        let rate=min(20_000_000,max(250_000,bitRate))
+        set(kVTCompressionPropertyKey_AverageBitRate,rate as CFNumber)
+        set(kVTCompressionPropertyKey_DataRateLimits,[Double(rate) / 8 * 1.5, 1, Double(rate) / 80 * 1.5, 0.1] as CFArray)
+    }
+    private func set(_ key:CFString,_ value:CFTypeRef){
+        guard let session else{return}
+        let status=VTSessionSetProperty(session,key:key,value:value)
+        guard status != noErr, rejectedProperties.insert(key as String).inserted else{return}
+        Self.log.error("VTSessionSetProperty \(key as String, privacy: .public) failed: \(status)")
+    }
+    /// Frames are encoded as keyframes until one is emitted.
+    public func requestKeyFrame(){keyFrameLock.withLock{forceKeyFrame=true}}
     public func encode(_ buffer:CVPixelBuffer,time:CMTime){
         guard let session else{return}
-        let result = VTCompressionSessionEncodeFrame(session,imageBuffer:buffer,presentationTimeStamp:time,duration:frameDuration,frameProperties:nil,sourceFrameRefcon:nil,infoFlagsOut:nil)
+        let properties = keyFrameLock.withLock{forceKeyFrame} ? [kVTEncodeFrameOptionKey_ForceKeyFrame:kCFBooleanTrue] as CFDictionary : nil
+        let result = VTCompressionSessionEncodeFrame(session,imageBuffer:buffer,presentationTimeStamp:time,duration:frameDuration,frameProperties:properties,sourceFrameRefcon:nil,infoFlagsOut:nil)
         if result != noErr { onDiscard?() }
     }
     public func finish(){if let session{VTCompressionSessionCompleteFrames(session,untilPresentationTimeStamp:.invalid)}}
@@ -56,9 +84,15 @@ public final class H264Encoder {
         let status=data.withUnsafeMutableBytes{CMBlockBufferCopyDataBytes(block,atOffset:0,dataLength:n,destination:$0.baseAddress!)}
         if status==noErr {
             emitted = true
+            if Self.isKeyFrame(sample) { keyFrameLock.withLock{forceKeyFrame=false} }
             if configuration != nil { sentSPS = sps }
             onOutput?(EncodedVideoFrame(configuration: configuration, data: data, time: sample.presentationTimeStamp.seconds))
         }
+    }
+    private static func isKeyFrame(_ sample:CMSampleBuffer)->Bool{
+        guard let attachments=CMSampleBufferGetSampleAttachmentsArray(sample,createIfNecessary:false) as? [[CFString:Any]],
+              let first=attachments.first else{return true}
+        return !(first[kCMSampleAttachmentKey_NotSync] as? Bool ?? false)
     }
     deinit{if let session{VTCompressionSessionInvalidate(session)}}
 }

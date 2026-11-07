@@ -57,7 +57,7 @@ Workspace size controls how much fits:
 | Match display | Uses the device's native pixels for a HiDPI workspace. Fixed shapes keep their saved match. |
 | Update display match | Updates a fixed shape to match the current display. |
 
-Picture quality applies when you reconnect. Balanced is the default. Efficient lowers pixel and bitrate limits; Sharp raises them. Maximum detail allows six million pixels, a 3840-pixel axis limit and 20 Mbps. All modes target 30 fps. A higher setting can't add detail missing from the source display.
+Picture quality applies when you reconnect. Balanced is the default. Efficient lowers pixel and bitrate limits; Sharp raises them. Maximum detail allows six million pixels, a 3840-pixel axis limit and 20 Mbps. All modes target 60 fps; the bitrate adapts to the connection up to that limit. A higher setting can't add detail missing from the source display.
 
 Session details show the workspace, backing and stream dimensions. [View display settings](Images/display-settings.png).
 

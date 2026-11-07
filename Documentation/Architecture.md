@@ -4,7 +4,7 @@ We capture the Mac display with ScreenCaptureKit, encode H.264 with VideoToolbox
 
 ## Video and audio
 
-Video targets 30 fps. Picture quality limits pixels and bitrate; workspace size controls how much fits. The host keeps one encoded frame awaiting transmission, so a slow connection doesn't build a queue of old frames.
+Video targets 60 fps. Picture quality limits pixels and the maximum bitrate; workspace size controls how much fits. The client acknowledges each frame once it is queued for display. The host keeps enough frames in flight to cover the round trip and drops captured frames beyond that, so a slow connection doesn't build a queue of old frames. Acknowledgement delay above the path's base delay means queueing: the host lowers the encoder bitrate toward the measured delivery rate, then probes upward while the content uses it. If acknowledgements stop for 4 seconds, the host resets and sends a keyframe. Peers without acknowledgements keep one encoded frame awaiting transmission.
 
 When sound is enabled, ScreenCaptureKit captures Mac audio. The host converts it to 48 kHz stereo AAC at 128 kbps. The client plays it through AVAudioEngine and uses the video timestamps to discard audio that has fallen behind. A new capture stream resets the decoder.
 

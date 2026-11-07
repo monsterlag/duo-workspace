@@ -8,7 +8,8 @@ public enum StreamQuality: String, Codable, CaseIterable, Sendable {
     }
 
     public var height: Int { self == .maximum ? 2000 : width * 5 / 8 }
-    public var framesPerSecond: Int { 30 }
+    public var framesPerSecond: Int { 60 }
+    /// The ceiling for adaptive bitrate.
     public var bitRate: Int {
         switch self { case .efficient: 3_000_000; case .balanced: 6_000_000; case .sharp: 10_000_000; case .maximum: 20_000_000 }
     }

@@ -13,6 +13,7 @@ public struct AuthorizationResult: Codable, Sendable {
     public var supportsNativeTouch: Bool?
     public var supportsFunctionModifier: Bool?
     public var supportsMicrophone: Bool?
+    public var supportsFrameAcks: Bool?
     public init(_ state: State, message: String, supportsAdaptiveDisplay: Bool? = nil, supportsMaximumDetail: Bool? = nil) {
         self.state = state; self.message = message; self.supportsAdaptiveDisplay = supportsAdaptiveDisplay
         self.supportsMaximumDetail = supportsMaximumDetail

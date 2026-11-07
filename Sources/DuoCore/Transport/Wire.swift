@@ -7,11 +7,14 @@ public enum MessageKind: UInt8, Sendable {
     case fileTransfer
     case nativeTouchControl, nativeTouchStatus, nativeTouchFrame
     case microphoneControl, microphoneStatus, microphoneFrame
+    case identifiedVideoFrame, videoFrameAck
 }
 public struct Packet: Sendable {
     public var kind: MessageKind
     public var sequence: UInt64
     public var payload: Data
+    /// Uptime when the channel decoded the packet, before it waits behind earlier handlers.
+    public var receivedAt: TimeInterval = 0
     public init(kind: MessageKind, sequence: UInt64, payload: Data) { self.kind=kind; self.sequence=sequence; self.payload=payload }
     public func encoded() throws -> Data {
         guard payload.count <= PacketDecoder.maximumPayload else { throw WireError.oversized }
