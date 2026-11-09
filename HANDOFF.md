@@ -17,7 +17,7 @@ Full suite green (51 driver, 52 package, 100 client tests). Live: pairing, ~50â€
 
 ## Open
 - Not tested on a slow or lossy link (needs Network Link Conditioner or a real phone on cellular); rate control is only proven by unit tests and a reviewer's simulation.
-- Hardware H.264 encoder rejects `MaxFrameDelayCount` (-12900); consider `kVTVideoEncoderSpecification_EnableLowLatencyRateControl`.
+- Encoder uses Apple low-latency rate control since 9af65b6 (High profile, IDR then P frames; falls back to the standard encoder). Every rebuilt host build re-prompts for keychain access to `DuoWorkspace.Identity.v2` (needs the owner's password); fix = keychain ACL tied to the signing certificate, not the build.
 - Acks that arrive while the host awaits a slow input handler (native-touch lift, up to 0.5 s) are timestamped late.
 - No real-device install yet (needs the owner's developer team: TestFlight or Xcode).
 
