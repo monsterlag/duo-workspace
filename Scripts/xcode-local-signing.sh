@@ -14,7 +14,9 @@ esac
 cd "$(dirname "$0")/.."
 app="$TARGET_BUILD_DIR/$FULL_PRODUCT_NAME"
 case "${1:-}" in
-  prepare) exec Scripts/setup-local-signing.sh "$app" ;;
-  sign) exec Scripts/sign-local-host.sh "$app" ;;
+  # Team Developer ID signing keeps one identity across rebuilds, so keychain and
+  # privacy grants are not asked for again on every build.
+  prepare) exit 0 ;;
+  sign) exec Scripts/sign-host-team.sh "$app" ;;
   *) echo 'Expected prepare or sign.' >&2; exit 64 ;;
 esac
