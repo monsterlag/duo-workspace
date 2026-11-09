@@ -21,22 +21,21 @@ public final class H264Encoder {
         guard VideoRasterLimits.contains(width: width, height: height) else { throw WireError.oversized }
         self.width=width;self.height=height
         frameDuration = CMTime(value: 1, timescale: CMTimeScale(max(1, framesPerSecond)))
-        let status=VTCompressionSessionCreate(allocator:nil,width:Int32(width),height:Int32(height),codecType:kCMVideoCodecType_H264,
-            encoderSpecification:[kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder:true] as CFDictionary,
-            imageBufferAttributes:nil,compressedDataAllocator:nil,outputCallback:{ ref,_,status,_,sample in
-                guard let ref else{return}
-                let encoder = Unmanaged<H264Encoder>.fromOpaque(ref).takeUnretainedValue()
-                guard status==noErr, let sample else{encoder.onDiscard?();return}
-                encoder.output(sample)
-            },refcon:Unmanaged.passUnretained(self).toOpaque(),compressionSessionOut:&session)
+        // Apple's low-latency rate control (as in its conferencing sample): one IDR then P frames only,
+        // no reordering or look-ahead, High profile. Fall back to the plain hardware encoder without it.
+        var status=createSession(lowLatency:true)
+        let lowLatency = status==noErr
+        if !lowLatency {
+            Self.log.error("Low-latency encoder unavailable (\(status)); using the standard encoder")
+            status=createSession(lowLatency:false)
+        }
         guard status==noErr,let session else{throw NSError(domain:"DuoEncoder",code:Int(status))}
         set(kVTCompressionPropertyKey_RealTime,kCFBooleanTrue)
         set(kVTCompressionPropertyKey_AllowFrameReordering,kCFBooleanFalse)
-        set(kVTCompressionPropertyKey_ProfileLevel,kVTProfileLevel_H264_Main_AutoLevel)
+        set(kVTCompressionPropertyKey_ProfileLevel,kVTProfileLevel_H264_High_AutoLevel)
         set(kVTCompressionPropertyKey_ExpectedFrameRate,framesPerSecond as CFNumber)
-        // Low latency: no reordering or frame delay.
-        set(kVTCompressionPropertyKey_MaxFrameDelayCount,0 as CFNumber)
-        set(kVTCompressionPropertyKey_PrioritizeEncodingSpeedOverQuality,kCFBooleanTrue)
+        // Low-latency rate control already favours speed and rejects this key (-12900).
+        if !lowLatency { set(kVTCompressionPropertyKey_PrioritizeEncodingSpeedOverQuality,kCFBooleanTrue) }
         // Periodic keyframes spike delay on a paced link; a reliable transport only needs them on demand.
         let interval = keyFrameInterval ?? 3600
         set(kVTCompressionPropertyKey_MaxKeyFrameInterval,max(1, Int(interval * Double(framesPerSecond))) as CFNumber)
@@ -50,6 +49,18 @@ public final class H264Encoder {
         let rate=min(20_000_000,max(250_000,bitRate))
         set(kVTCompressionPropertyKey_AverageBitRate,rate as CFNumber)
         set(kVTCompressionPropertyKey_DataRateLimits,[Double(rate) / 8 * 1.5, 1, Double(rate) / 80 * 1.5, 0.1] as CFArray)
+    }
+    private func createSession(lowLatency:Bool)->OSStatus{
+        var specification:[CFString:Any]=[kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder:true]
+        if lowLatency { specification[kVTVideoEncoderSpecification_EnableLowLatencyRateControl]=true }
+        return VTCompressionSessionCreate(allocator:nil,width:Int32(width),height:Int32(height),codecType:kCMVideoCodecType_H264,
+            encoderSpecification:specification as CFDictionary,
+            imageBufferAttributes:nil,compressedDataAllocator:nil,outputCallback:{ ref,_,status,_,sample in
+                guard let ref else{return}
+                let encoder = Unmanaged<H264Encoder>.fromOpaque(ref).takeUnretainedValue()
+                guard status==noErr, let sample else{encoder.onDiscard?();return}
+                encoder.output(sample)
+            },refcon:Unmanaged.passUnretained(self).toOpaque(),compressionSessionOut:&session)
     }
     private func set(_ key:CFString,_ value:CFTypeRef){
         guard let session else{return}
