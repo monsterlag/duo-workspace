@@ -19,6 +19,7 @@ Full suite green (51 driver, 52 package, 100 client tests). Live: pairing, ~50â€
 - Not tested on a slow or lossy link (needs Network Link Conditioner or a real phone on cellular); rate control is only proven by unit tests and a reviewer's simulation.
 - Encoder uses Apple low-latency rate control since 9af65b6 (High profile, IDR then P frames; falls back to the standard encoder).
 - Sign every host build with `Scripts/sign-host-team.sh` (Developer ID, team 6W6FT9SXBU), NOT `local_signing.py`: the local certificate changes the keychain partition (cdhash) on each rebuild, so macOS re-asks for the login password every build. With the team ID the keychain and Screen Recording/Accessibility grants survive rebuilds.
+- **Installed host: `/Applications/DuoWorkspaceHost.app`** (team-signed, Screen Recording + Accessibility granted, verified 2026-11-09). Update it by building the DuoWorkspaceHost scheme, quitting the host, `ditto <DerivedData>/Build/Products/Debug/DuoWorkspaceHost.app /Applications/DuoWorkspaceHost.app`, relaunching. Delete the build-folder copy afterwards: extra copies with the same bundle ID confused System Settings into toggling a stale copy.
 - Acks that arrive while the host awaits a slow input handler (native-touch lift, up to 0.5 s) are timestamped late.
 - No real-device install yet (needs the owner's developer team: TestFlight or Xcode).
 
