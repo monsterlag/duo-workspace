@@ -17,7 +17,8 @@ Full suite green (51 driver, 52 package, 100 client tests). Live: pairing, ~50â€
 
 ## Open
 - Not tested on a slow or lossy link (needs Network Link Conditioner or a real phone on cellular); rate control is only proven by unit tests and a reviewer's simulation.
-- Encoder uses Apple low-latency rate control since 9af65b6 (High profile, IDR then P frames; falls back to the standard encoder). Every rebuilt host build re-prompts for keychain access to `DuoWorkspace.Identity.v2` (needs the owner's password); fix = keychain ACL tied to the signing certificate, not the build.
+- Encoder uses Apple low-latency rate control since 9af65b6 (High profile, IDR then P frames; falls back to the standard encoder).
+- Sign every host build with `Scripts/sign-host-team.sh` (Developer ID, team 6W6FT9SXBU), NOT `local_signing.py`: the local certificate changes the keychain partition (cdhash) on each rebuild, so macOS re-asks for the login password every build. With the team ID the keychain and Screen Recording/Accessibility grants survive rebuilds.
 - Acks that arrive while the host awaits a slow input handler (native-touch lift, up to 0.5 s) are timestamped late.
 - No real-device install yet (needs the owner's developer team: TestFlight or Xcode).
 
