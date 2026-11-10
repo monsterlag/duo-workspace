@@ -15,7 +15,7 @@ Fork of kesku/duo-workspace (`monsterlag/duo-workspace`, remote `upstream` = kes
 ## Verified 2026-11-07 (iPhone Duo simulator, LAN loopback)
 Full suite green (51 driver, 52 package, 100 client tests). Live: pairing, ~50–55 fps sent (capture-bound), local pinch zoom sends no input, zoom kept with keyboard up, Tailscale address in invitations.
 
-## Upstream sync 2026-11-10 (branch `merge/upstream-2026-11`, local, not pushed)
+## Upstream sync 2026-11-10 (merged into `duo-native` and pushed)
 - Merged kesku/duo-workspace `main` up to dd86d48 (12 commits: native bottom-edge gestures, mic/video resume fix, fullscreen workspace, Dock hiding + Settings window, Apple Development host signing via `.secrets/AppleDevelopment.xcconfig`). One conflict (PointerSurface.swift), kept both sides. `Scripts/build.sh` verifies with plain `codesign` because we team-sign.
 - tembo/voxl up to b00f3b8 (19 commits) reviewed. Ported: sRGB capture + colour tags (eba3b7c). Already had: same-spot double-tap (9d00407; ours 350 ms/24 pt, no triple-tap chain), host cursor shown (3051e8a). Not applicable: x264 CRF fix (79), X11 resize, `--tls`, web/docs/bench.
 - New: host setting **Start sharing when opened** (`startSharingOnLaunch`, default off; ON on this Mac since 2026-11-10).
@@ -36,5 +36,6 @@ Full suite green (51 driver, 52 package, 100 client tests). Live: pairing, ~50�
 - App Store Connect app **6832027461**, listing name "Duo Desk - duodesk" ("Duo Desk" was taken; home-screen name is Duo Desk). Bundle `com.macmax.duodesk`, team 6W6FT9SXBU, profile "Duo Desk App Store" (Apple Distribution cert 78CQJ8C2D4).
 - Internal group **Owner Testing** `ee0b4478-4d21-485c-91d7-7f6bb5ca4762` (owner's developer account). No external group, no beta review, no public release.
 - Build **1** (1.0): VALID, IN_BETA_TESTING, in Owner Testing, What to Test = `Scripts/testflight/what-to-test.txt`. Built with released Xcode 27.2 (beta SDK builds can be rejected).
-- Next build: `Scripts/testflight/release.sh 2`, then `asc builds add-groups --app 6832027461 --latest --group ee0b4478-…` and `asc builds test-notes create …`. Use a number above the latest in App Store Connect.
+- Build **2** (1.0, 2026-11-10): upstream merge + sRGB host fix; VALID, IN_BETA_TESTING, in Owner Testing, notes uploaded. Upload id 0a004ae5-2e6d-4f31-b075-33b11cad7082.
+- Next build: `Scripts/testflight/release.sh 3`, then `asc builds add-groups --app 6832027461 --latest --group ee0b4478-…` and `asc builds test-notes create …`. Use a number above the latest in App Store Connect.
 - asc gotcha: in zsh never name a shell variable `GID` (reserved integer).

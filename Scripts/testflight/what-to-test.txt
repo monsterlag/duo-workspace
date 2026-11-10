@@ -1,6 +1,8 @@
-Duo Desk 1.0: control your Mac from iPhone Duo.
+Duo Desk 1.0 (2): control your Mac from iPhone Duo.
 
-1. On the Mac, open Duo Workspace Host, start sharing and create an invitation (leave the address blank: it uses the Mac's Tailscale address).
+New in this build: upstream fixes (video and microphone resume after leaving the app, fullscreen workspace, bottom-edge and Home gesture handling during a session). The Mac host now streams with low-latency encoding and correct colours on wide-gamut displays, and can start sharing by itself when it opens.
+
+1. On the Mac, open Duo Workspace Host and create an invitation (leave the address blank: it uses the Mac's Tailscale address). Pairing needs you at the Mac once.
 2. In Duo Desk, choose Add Mac, paste the invitation, pair, and approve on the Mac if the six-digit codes match.
-3. Try: taps and two-finger scrolls; pinch to zoom the picture (two-finger double-tap returns to fit); typing with the keyboard open while zoomed.
+3. Try: taps and two-finger scrolls; pinch to zoom the picture (two-finger double-tap returns to fit); typing with the keyboard open while zoomed; leaving the app and coming back.
 4. Try it on cellular over Tailscale and note how smooth it feels and whether the picture goes soft or stalls.
