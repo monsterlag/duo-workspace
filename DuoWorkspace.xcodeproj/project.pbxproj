@@ -110,6 +110,7 @@
 		C4721D427819BBB1F4963DF3 /* MacCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC93700110E949E74324157 /* MacCard.swift */; };
 		C7D0FDD829D8F3B3BC2E117F /* FileTransferSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588095CDC5FE48ED7C6B84FB /* FileTransferSection.swift */; };
 		CA86A6DC547B11BEEE5A76B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E6CA9B8823FBC5D1C8B5E618 /* Assets.xcassets */; };
+		CAB33A903C7FCAF9676B51AC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40DD79F6131C7F831D7321C /* SettingsView.swift */; };
 		CC91620A6D4146E26B76A4E0 /* RemoteModifier+Presentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CDA62D8208BC4DEA0B9698 /* RemoteModifier+Presentation.swift */; };
 		CD11AD32B6162271B409B800 /* WorkspaceModeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D276C96DB6FE4912865BF71 /* WorkspaceModeButton.swift */; };
 		D160E1577B9BE47202C0FDE6 /* SessionPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A94CA0BA8D3613336A1A8C64 /* SessionPresentation.swift */; };
@@ -121,6 +122,7 @@
 		D49046ABC55EE8111E89AAAD /* FunctionKeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E4E666A9055EA2E3D0CD31 /* FunctionKeyTests.swift */; };
 		D5A2ADF2D3BF6FC45BC0A0A8 /* SessionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C367078CD17634F0E06AD0 /* SessionActions.swift */; };
 		D732A0DE89D1A14C716CF269 /* SessionDoneToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 230E6BA533402F69F5B5E4FE /* SessionDoneToolbar.swift */; };
+		D799362C8524D65A3A509D87 /* DockVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67839FE319E52E5F75A7699A /* DockVisibility.swift */; };
 		D87EDC8A3C07D378A0F0CCE8 /* DesktopSizing+Presentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14EF02FDA203B7BFA80386CC /* DesktopSizing+Presentation.swift */; };
 		DA00BBEDB6392BABAF04D86A /* DesktopSizingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F367834C43D572AAF808BC /* DesktopSizingOptions.swift */; };
 		DBF6CE4414E2A80835750DB6 /* RegionEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F825BF2E2338C4FB8CC45C /* RegionEnvironment.swift */; };
@@ -216,6 +218,7 @@
 		656B62FF2E8CC4C40D598864 /* SessionDisplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDisplayTests.swift; sourceTree = "<group>"; };
 		66339E95512EA856994F5E3C /* HostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostView.swift; sourceTree = "<group>"; };
 		67282F0F66C179FE2AC895C0 /* TabletopControlDeck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabletopControlDeck.swift; sourceTree = "<group>"; };
+		67839FE319E52E5F75A7699A /* DockVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockVisibility.swift; sourceTree = "<group>"; };
 		68D84ADB15DA177EDBBC98F2 /* KeyboardPresenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardPresenceView.swift; sourceTree = "<group>"; };
 		6A841302018112E9B9697266 /* ConnectionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOverlay.swift; sourceTree = "<group>"; };
 		6ADB8D4E7BA7339B7153D286 /* SessionFiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionFiles.swift; sourceTree = "<group>"; };
@@ -268,6 +271,7 @@
 		AF180E37544D886F60E40A9D /* ReceivedFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceivedFile.swift; sourceTree = "<group>"; };
 		AFB6AE073EBF7C83834554E4 /* KeyboardPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardPresentation.swift; sourceTree = "<group>"; };
 		B01C5FFE04352280FE621068 /* PairingSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingSection.swift; sourceTree = "<group>"; };
+		B40DD79F6131C7F831D7321C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B61957B84DF75108230306A0 /* HardwareModifierMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareModifierMapping.swift; sourceTree = "<group>"; };
 		B740D39D19FC76D502BDDC9C /* KeyboardAvoidingRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardAvoidingRegion.swift; sourceTree = "<group>"; };
 		B8B5330446CC86C7BA0C0C6D /* FileTransferFailureText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileTransferFailureText.swift; sourceTree = "<group>"; };
@@ -282,6 +286,7 @@
 		C058B2AC585B365F68BFFE63 /* ClientCredentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientCredentials.swift; sourceTree = "<group>"; };
 		C2BEF89B951A4F1F524A6815 /* HostEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostEditorView.swift; sourceTree = "<group>"; };
 		C30EC9DB7AC1FB72619B6E5E /* WorkspaceChromeEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceChromeEffect.swift; sourceTree = "<group>"; };
+		C4715CEABA3FC68D22A92F6C /* HostSigning.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = HostSigning.xcconfig; sourceTree = "<group>"; };
 		C4858A762763462CD28C7163 /* StreamQualityLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamQualityLabel.swift; sourceTree = "<group>"; };
 		C7D0461C12D812DD5A4E50BB /* SessionPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPresentationTests.swift; sourceTree = "<group>"; };
 		C7FBE7EB3A51C52B9F170DB4 /* RecoveryVideoFixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryVideoFixture.swift; sourceTree = "<group>"; };
@@ -341,6 +346,7 @@
 		0FF4CCF59DC394FA169DCBB4 = {
 			isa = PBXGroup;
 			children = (
+				A5562A246A4546ECABD39AD7 /* Configuration */,
 				C868BF15F6AD6323453115E3 /* DuoClientTests */,
 				E529C68BBF959D9E0A14B301 /* iOS */,
 				25DD199F4198A8E2561B85CB /* macOS */,
@@ -395,6 +401,7 @@
 			children = (
 				38EBFF2C30BCB2F07E088CEA /* Assets.xcassets */,
 				80F6CDF21F79B758A2662E49 /* DeviceAccessSection.swift */,
+				67839FE319E52E5F75A7699A /* DockVisibility.swift */,
 				79DE2287EF756EB66EAFB192 /* DuoHostApp.swift */,
 				70D28CEB62CAF0886DF723B8 /* DuoWorkspaceHost.entitlements */,
 				66339E95512EA856994F5E3C /* HostView.swift */,
@@ -404,6 +411,7 @@
 				B01C5FFE04352280FE621068 /* PairingSection.swift */,
 				1F8F663364CA16CD2B7A8042 /* PermissionRow.swift */,
 				27EDAC937EC095BB3CA0B472 /* PrivacyInfo.xcprivacy */,
+				B40DD79F6131C7F831D7321C /* SettingsView.swift */,
 			);
 			name = macOS;
 			path = Apps/macOS;
@@ -468,6 +476,14 @@
 				A5773601499B26D7AF02E33C /* duo-workspace */,
 			);
 			name = Packages;
+			sourceTree = "<group>";
+		};
+		A5562A246A4546ECABD39AD7 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				C4715CEABA3FC68D22A92F6C /* HostSigning.xcconfig */,
+			);
+			path = Configuration;
 			sourceTree = "<group>";
 		};
 		AEC66C76F3A80A6A2F00F5FD /* Sharing */ = {
@@ -897,12 +913,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				F7BE37B466467CB547AA3980 /* DeviceAccessSection.swift in Sources */,
+				D799362C8524D65A3A509D87 /* DockVisibility.swift in Sources */,
 				1D36FBF37A2E35174631A8B1 /* DuoHostApp.swift in Sources */,
 				F1A63D6C1FA53BA3FBEB0708 /* HostView.swift in Sources */,
 				8E0BC5401D2559D8A723DCF9 /* InputTestWindow.swift in Sources */,
 				2AE13BB59C74E7367B664508 /* PairingApprovalSection.swift in Sources */,
 				183E503C428AD51EA96E23DE /* PairingSection.swift in Sources */,
 				934B3FD015D4BE121C981DF5 /* PermissionRow.swift in Sources */,
+				CAB33A903C7FCAF9676B51AC /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1002,12 +1020,11 @@
 		};
 		72534B3AB10FED052D0DD0DC /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C4715CEABA3FC68D22A92F6C /* HostSigning.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = Apps/macOS/DuoWorkspaceHost.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				DUO_LOCAL_SIGNING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1017,7 +1034,6 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = local.duoworkspace.host;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -1176,12 +1192,11 @@
 		};
 		B0E4EF5B03904C322ADA7C53 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C4715CEABA3FC68D22A92F6C /* HostSigning.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = Apps/macOS/DuoWorkspaceHost.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				DUO_LOCAL_SIGNING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1190,7 +1205,6 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = local.duoworkspace.host;
 				SDKROOT = macosx;
 			};
 			name = Debug;

@@ -63,18 +63,18 @@ targets:
   DuoWorkspaceHost:
     type: application
     platform: macOS
+    configFiles:
+      Debug: Configuration/HostSigning.xcconfig
+      Release: Configuration/HostSigning.xcconfig
     sources: [Apps/macOS]
     dependencies:
       - package: DuoWorkspace
         product: DuoHost
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: local.duoworkspace.host
         CODE_SIGN_ENTITLEMENTS: Apps/macOS/DuoWorkspaceHost.entitlements
         GENERATE_INFOPLIST_FILE: YES
         ENABLE_APP_SANDBOX: NO
-        CODE_SIGNING_ALLOWED: NO
-        DUO_LOCAL_SIGNING: YES
         ENABLE_USER_SCRIPT_SANDBOXING: NO
       configs:
         Release:

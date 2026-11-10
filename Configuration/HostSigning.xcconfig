@@ -1,0 +1,7 @@
+// Local source builds use the saved host identity unless Apple signing is configured.
+PRODUCT_BUNDLE_IDENTIFIER = local.duoworkspace.host
+CODE_SIGNING_ALLOWED = NO
+DUO_LOCAL_SIGNING = YES
+
+// Keep developer-team and App ID settings local to each checkout.
+#include? "../.secrets/AppleDevelopment.xcconfig"

@@ -82,7 +82,7 @@ final class NativeTouchController {
             }
             self.displayID = displayID; displayBounds = CGDisplayBounds(displayID)
             device = next; needsNeutral = true; hasContacts = false; lastFrameTime = now()
-            publish(NativeTouchStatus(.ready, contextID: UUID()))
+            publish(NativeTouchStatus(.ready, contextID: UUID(), supportsEdgeGestures: true))
             watchdog = Task { [weak self] in
                 while !Task.isCancelled {
                     do { try await Task.sleep(for: .milliseconds(100)) } catch { return }
@@ -127,7 +127,7 @@ final class NativeTouchController {
         if hasContacts && now() - lastFrameTime > 0.7 {
             releaseContacts()
             // A stalled sender must see the new context before it can resume.
-            publish(NativeTouchStatus(.ready, contextID: UUID()))
+            publish(NativeTouchStatus(.ready, contextID: UUID(), supportsEdgeGestures: true))
         }
     }
 

@@ -75,6 +75,7 @@ struct RemoteSessionView: View {
         // Each region handles keyboard avoidance without moving the fold.
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .modifier(SessionStatusBar())
+        .defersSystemGestures(on: model.state == .connected ? .bottom : [])
         .onAppear(perform: updateIdleTimer)
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = false; model.releaseInput() }
         .onChange(of: model.settings.keepAwake, updateIdleTimer)

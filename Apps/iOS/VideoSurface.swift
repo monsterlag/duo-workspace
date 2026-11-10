@@ -50,8 +50,15 @@ final class VideoSurface:UIView {
         self.renderer=renderer;super.init(frame:.zero)
         videoLayer.videoGravity = .resizeAspect
         isAccessibilityElement=true;accessibilityLabel="Mac workspace"
+        NotificationCenter.default.addObserver(self, selector: #selector(sceneDidActivate),
+                                               name: UIScene.didActivateNotification, object: nil)
     }
     required init?(coder:NSCoder) {fatalError()}
+    deinit { NotificationCenter.default.removeObserver(self) }
+    @objc private func sceneDidActivate(_ notification: Notification) {
+        guard let scene = window?.windowScene, notification.object as? UIWindowScene === scene else { return }
+        reportViewport()
+    }
     override func didMoveToWindow() {
         super.didMoveToWindow()
         reportViewport()

@@ -24,9 +24,22 @@ Edit `project.yml` when adding files or changing targets, then run `xcodegen gen
 
 ## Signing and installation
 
-The first build creates a host-signing identity in `.secrets/`. The build script and Xcode reuse it. The simulator client uses ad-hoc signing. These builds don't need an Apple Developer account.
+The default build creates and reuses a local host-signing identity in `.secrets/`. The simulator client uses ad-hoc signing. This mode requires no Apple Developer account.
 
 Keep `.secrets/` when moving the checkout, or point `DUO_SIGNING_DIR` at the existing signing folder. If signing files are damaged or incomplete, the build stops. Restore the originals; replacing the identity requires new Mac permissions.
+
+For Apple Development signing, create `.secrets/AppleDevelopment.xcconfig` with your team and registered Mac host App ID:
+
+```xcconfig
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
+PRODUCT_BUNDLE_IDENTIFIER = YOUR_HOST_APP_ID
+CODE_SIGN_STYLE = Automatic
+CODE_SIGN_IDENTITY = Apple Development
+CODE_SIGNING_ALLOWED = YES
+DUO_LOCAL_SIGNING = NO
+```
+
+The host target reads this file in Xcode and `Scripts/build.sh`. For Native touch, enable **HID Virtual Device (development)** on the host App ID. Xcode requests a matching Mac development profile during the scripted build. The profile must authorize the virtual-HID entitlement and include your Mac. Regenerate profiles after changing capabilities.
 
 For a physical device, open `DuoWorkspace.xcodeproj`, choose your team and a unique client bundle identifier in Signing & Capabilities, then run. Personal Team installs need periodic reprovisioning. Keep personal signing settings out of commits.
 

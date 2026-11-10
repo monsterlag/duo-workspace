@@ -28,6 +28,8 @@ In tabletop, the desktop sits above the fold and the controls sit below it. The 
 
 Open Session in the lower toolbar or keyboard row for settings, sharing and connection controls. Hide controls removes the toolbar and keyboard. Swipe inward at either side mark to restore them, or use the Show controls accessibility action.
 
+Connected workspaces use game-style Home gestures: the Home indicator dims, and the first upward swipe at the bottom stays in Duo. Swipe up again to go Home.
+
 The Mac desktop is video, so its controls aren't exposed to iPhone screen readers. VoiceOver actions can move the pointer, click, drag and scroll. Accessibility text sizes, VoiceOver, Switch Control and composing or non-English keyboards keep the key row attached to the native keyboard.
 
 ## Connection address

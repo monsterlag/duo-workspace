@@ -3,6 +3,19 @@ import Testing
 @testable import DuoCore
 
 struct NativeTouchTests {
+    @Test func edgeGestureHintIsOptionalAndRejectsUnknownValues() throws {
+        let old = Data(#"{"id":1,"x":0.5,"y":1}"#.utf8)
+        let contact = try JSONDecoder().decode(NativeTouchContact.self, from: old)
+        #expect(contact.edgeGesture == nil)
+        let encoded = try JSONEncoder().encode(contact)
+        let object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        #expect(object["edgeGesture"] == nil)
+        let bezel = NativeTouchContact(id: 1, x: 0.5, y: 1, edgeGesture: .dock)
+        #expect(try JSONDecoder().decode(NativeTouchContact.self, from: JSONEncoder().encode(bezel)) == bezel)
+        let invalid = Data(#"{"id":1,"x":0.5,"y":1,"edgeGesture":"yes"}"#.utf8)
+        #expect(throws: (any Error).self) { try JSONDecoder().decode(NativeTouchContact.self, from: invalid) }
+    }
+
     @Test func validatesBoundedDistinctContacts() throws {
         let context = UUID()
         let contacts = (1...5).map { NativeTouchContact(id: UInt8($0), x: Double($0) / 5, y: 0.5) }

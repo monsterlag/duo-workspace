@@ -6,6 +6,32 @@ import DuoCore
 
 @MainActor
 struct WorkspaceInterfaceTests {
+    @Test func sceneActivationRestoresTheVideoSurfaceWithoutAnotherLayout() throws {
+        let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive })
+        let renderer = VideoRenderer()
+        let surface = VideoSurface(renderer: renderer)
+        let window = UIWindow(windowScene: scene)
+        defer { withExtendedLifetime(window) {} }
+        surface.isActiveSurface = true
+        surface.isCurrentContext = { true }
+        surface.onViewport = { _, _ in }
+        window.addSubview(surface)
+        surface.reportViewport()
+        #expect(renderer.activeLayer === surface.videoLayer)
+
+        // A background viewport update detaches the surface. Becoming active
+        // must restore it even when neither its bounds nor its controls change.
+        renderer.detach(surface.videoLayer)
+        NotificationCenter.default.post(name: UIScene.didActivateNotification, object: scene)
+        #expect(renderer.activeLayer === surface.videoLayer)
+
+        renderer.detach(surface.videoLayer)
+        surface.isCurrentContext = { false }
+        NotificationCenter.default.post(name: UIScene.didActivateNotification, object: scene)
+        #expect(renderer.activeLayer == nil)
+    }
+
     @Test func retiredLayerCannotReplaceTheCurrentVideoSurface() {
         let renderer = VideoRenderer()
         let old = AVSampleBufferDisplayLayer(), current = AVSampleBufferDisplayLayer()

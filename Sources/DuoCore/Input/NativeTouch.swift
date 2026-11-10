@@ -1,12 +1,16 @@
 import Foundation
 
 public struct NativeTouchContact: Codable, Equatable, Sendable {
+    public enum EdgeGesture: String, Codable, Sendable { case dock, windowResize }
     public let id: UInt8
     public let x: Double
     public let y: Double
+    /// A recognised bottom-edge gesture; ordinary contacts omit this hint.
+    public let edgeGesture: EdgeGesture?
 
-    public init(id: UInt8, x: Double, y: Double) {
+    public init(id: UInt8, x: Double, y: Double, edgeGesture: EdgeGesture? = nil) {
         self.id = id; self.x = x; self.y = y
+        self.edgeGesture = edgeGesture
     }
 
     public var isValid: Bool {
@@ -41,9 +45,11 @@ public struct NativeTouchStatus: Codable, Equatable, Sendable {
     public let state: State
     public let contextID: UUID?
     public let failure: Failure?
+    public let supportsEdgeGestures: Bool?
 
-    public init(_ state: State, contextID: UUID? = nil, failure: Failure? = nil) {
+    public init(_ state: State, contextID: UUID? = nil, failure: Failure? = nil, supportsEdgeGestures: Bool? = nil) {
         self.state = state; self.contextID = contextID; self.failure = failure
+        self.supportsEdgeGestures = supportsEdgeGestures
     }
 
     public var isValid: Bool {

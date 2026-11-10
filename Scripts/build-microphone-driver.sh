@@ -21,6 +21,8 @@ codesign --verify --strict "$bundle"
 root="$build/package-root"
 mkdir -p "$root/Library/Audio/Plug-Ins/HAL"
 ditto "$bundle" "$root/Library/Audio/Plug-Ins/HAL/DuoMicrophone.driver"
+# The installed driver is read by _coreaudiod, not the root package owner.
+chmod -R u=rwX,go=rX "$root"
 pkgbuild --root "$root" --identifier local.duoworkspace.microphone \
     --version "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Drivers/DuoMicrophone/Info.plist)" --scripts Scripts/MicrophoneInstaller "$build/DuoMicrophone.pkg" >/dev/null
 if [[ -n "${1:-}" ]]; then
