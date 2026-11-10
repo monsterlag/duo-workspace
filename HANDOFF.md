@@ -15,6 +15,14 @@ Fork of kesku/duo-workspace (`monsterlag/duo-workspace`, remote `upstream` = kes
 ## Verified 2026-11-07 (iPhone Duo simulator, LAN loopback)
 Full suite green (51 driver, 52 package, 100 client tests). Live: pairing, ~50–55 fps sent (capture-bound), local pinch zoom sends no input, zoom kept with keyboard up, Tailscale address in invitations.
 
+## Upstream sync 2026-11-10 (branch `merge/upstream-2026-11`, local, not pushed)
+- Merged kesku/duo-workspace `main` up to dd86d48 (12 commits: native bottom-edge gestures, mic/video resume fix, fullscreen workspace, Dock hiding + Settings window, Apple Development host signing via `.secrets/AppleDevelopment.xcconfig`). One conflict (PointerSurface.swift), kept both sides. `Scripts/build.sh` verifies with plain `codesign` because we team-sign.
+- tembo/voxl up to b00f3b8 (19 commits) reviewed. Ported: sRGB capture + colour tags (eba3b7c). Already had: same-spot double-tap (9d00407; ours 350 ms/24 pt, no triple-tap chain), host cursor shown (3051e8a). Not applicable: x264 CRF fix (79), X11 resize, `--tls`, web/docs/bench.
+- New: host setting **Start sharing when opened** (`startSharingOnLaunch`, default off; ON on this Mac since 2026-11-10).
+- Verified: full suite green (63 driver-side, 53 package, 111 client tests); installed host relaunched with no keychain/TCC prompt after two rebuilds; auto-shared with the screen locked; Duo simulator streamed the lock screen ~30 fps, encoder log clean.
+- Upstream's Apple Development signing path can carry the HID Virtual Device (development) capability, i.e. native touch without disabling SIP. Using it means a new host bundle ID (new keychain + privacy grants once) and still needs macOS 27.3.
+- Simulator note: the paired sim app is `local.duoworkspace.client`; build the client with `PRODUCT_BUNDLE_IDENTIFIER=local.duoworkspace.client` to keep its pairing (the default `com.macmax.duodesk` build is a different, unpaired app).
+
 ## Open
 - Not tested on a slow or lossy link (needs Network Link Conditioner or a real phone on cellular); rate control is only proven by unit tests and a reviewer's simulation.
 - Encoder uses Apple low-latency rate control since 9af65b6 (High profile, IDR then P frames; falls back to the standard encoder).

@@ -38,6 +38,10 @@ Pairing uses the address in the invitation. Choose Use a different address for a
 
 For Tailscale, run it on both devices and use the Mac's Tailscale IP or MagicDNS name. Your tailnet must allow port 47991. Duo uses that connection directly and doesn't provide a relay.
 
+## Sharing without a click on the Mac
+
+In Duo Workspace Host, open Settings and turn on **Start sharing when opened**. Paired devices can then connect as soon as the host opens. With **Open at login** as well, the Mac is reachable after a restart once you log in. A locked Mac still streams its lock screen. Pairing a new device still needs approval on the Mac.
+
 ## Desktop shape and size
 
 Use as Display can resize the desktop. Automatic follows the available video area. A fixed shape keeps its chosen size through rotation, folding and keyboard changes. Landscape stays landscape, and the desktop stays centered.

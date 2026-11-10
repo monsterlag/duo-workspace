@@ -14,6 +14,7 @@ struct DuoHostApp: App {
     @NSApplicationDelegateAdaptor(HostAppDelegate.self) private var delegate
     @State private var host = HostController()
     @Environment(\.openWindow) private var openWindow
+    @State private var startedAtLaunch = false
 
     var body: some Scene {
         Window("Duo Workspace Host", id: "host") {
@@ -38,6 +39,12 @@ struct DuoHostApp: App {
         } label: {
             Image(systemName: "display.2").symbolVariant(host.sharing ? .fill : .none)
                 .onChange(of: host.access.pending.count) { old, new in if new > old { showHost() } }
+                // Pairing data loads after launch; start once it is ready, and only once,
+                // so a later Stop sharing stays stopped.
+                .onChange(of: host.access.isReady, initial: true) { _, ready in
+                    guard ready, !startedAtLaunch, SharingAtLaunch.isEnabled else { return }
+                    startedAtLaunch = true; host.start()
+                }
         }
     }
 
