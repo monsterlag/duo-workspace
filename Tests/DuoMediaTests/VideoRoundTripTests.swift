@@ -33,6 +33,11 @@ final class VideoRoundTripTests: XCTestCase {
                 guard let format = CMSampleBufferGetFormatDescription(sample) else {
                     XCTFail("Missing H.264 format"); return
                 }
+                // The host captures in sRGB; the stream must say so, or a client guesses.
+                XCTAssertEqual(CMFormatDescriptionGetExtension(format, extensionKey: kCMFormatDescriptionExtension_TransferFunction) as? String,
+                               kCMFormatDescriptionTransferFunction_sRGB as String)
+                XCTAssertEqual(CMFormatDescriptionGetExtension(format, extensionKey: kCMFormatDescriptionExtension_ColorPrimaries) as? String,
+                               kCMFormatDescriptionColorPrimaries_ITU_R_709_2 as String)
                 let status = VTDecompressionSessionCreate(allocator: nil, formatDescription: format,
                     decoderSpecification: nil, imageBufferAttributes: nil,
                     outputCallback: nil, decompressionSessionOut: &decoder)

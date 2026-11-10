@@ -61,6 +61,9 @@ public final class CaptureEngine:NSObject,SCStreamOutput,SCStreamDelegate,@unche
         config.width=width;config.height=height;config.pixelFormat=kCVPixelFormatType_32BGRA
         config.minimumFrameInterval=CMTime(value:1,timescale:CMTimeScale(min(60,max(15,framesPerSecond))));config.queueDepth=5
         config.showsCursor=true;config.capturesAudio=audioEnabled
+        // Convert to sRGB on the GPU. Without this a wide-gamut (P3) display is captured in
+        // its own space and shown desaturated by a client that reads it as sRGB/BT.709.
+        config.colorSpaceName=CGColorSpace.sRGB
         config.sampleRate=Int(AudioStreamFormat.sampleRate);config.channelCount=Int(AudioStreamFormat.channelCount);config.excludesCurrentProcessAudio=true
         configuration = config
         let s=SCStream(filter:filter,configuration:config,delegate:self)

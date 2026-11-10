@@ -34,6 +34,10 @@ public final class H264Encoder {
         set(kVTCompressionPropertyKey_AllowFrameReordering,kCFBooleanFalse)
         set(kVTCompressionPropertyKey_ProfileLevel,kVTProfileLevel_H264_High_AutoLevel)
         set(kVTCompressionPropertyKey_ExpectedFrameRate,framesPerSecond as CFNumber)
+        // Capture delivers sRGB; say so in the stream so the client doesn't guess.
+        set(kVTCompressionPropertyKey_ColorPrimaries,kCVImageBufferColorPrimaries_ITU_R_709_2)
+        set(kVTCompressionPropertyKey_TransferFunction,kCVImageBufferTransferFunction_sRGB)
+        set(kVTCompressionPropertyKey_YCbCrMatrix,kCVImageBufferYCbCrMatrix_ITU_R_709_2)
         // Low-latency rate control already favours speed and rejects this key (-12900).
         if !lowLatency { set(kVTCompressionPropertyKey_PrioritizeEncodingSpeedOverQuality,kCFBooleanTrue) }
         // Periodic keyframes spike delay on a paced link; a reliable transport only needs them on demand.
